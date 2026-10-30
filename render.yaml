@@ -5,6 +5,7 @@ services:
     name: korea-data-mcp
     runtime: python
     plan: free
+    region: singapore  # 공공 API가 전부 한국 서버라 가장 가까운 리전 (기본값은 미국 oregon)
     branch: main
     buildCommand: pip install .
     startCommand: korea-data-mcp --http
