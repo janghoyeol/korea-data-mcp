@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "korea-data-mcp"
+version = "0.1.0"
+description = "한국 공공데이터(KOSIS·DART·에어코리아·실거래가)를 출처와 함께 조회하는 MCP 서버"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "mcp>=2.3,<3",
+    "requests>=2.31",
+    "jsonschema>=4",
+    "tzdata>=2024.1",
+]
+
+[project.scripts]
+korea-data-mcp = "korea_data_mcp.server:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+korea_data_mcp = ["realty/data/*.tsv"]
