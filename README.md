@@ -26,10 +26,10 @@ Claude(Haiku 5.5)에 이 서버만 연결하고 "카카오 최근 3년 매출 �
 도메인별 하루 공용 상한이 있어서, 많이 쓰려면 아래처럼 자기 키로 로컬 설치를 권한다.
 
 ```bash
-claude mcp add --transport http korea-data https://<배포 주소>/mcp
+claude mcp add --transport http korea-data https://korea-data-mcp.onrender.com/mcp
 ```
 
-claude.ai에서는 설정 → 커넥터 → 사용자 지정 커넥터 추가에 같은 `/mcp` 주소를 넣는다.
+claude.ai에서는 설정 → 커넥터 → 사용자 지정 커넥터 추가에 `https://korea-data-mcp.onrender.com/mcp`를 넣는다.
 
 ## 설치
 

@@ -93,7 +93,9 @@ claude.ai 커넥터에 URL만 붙여 바로 써 볼 수 있게 하고, 잃을 �
 - [x] 로컬 HTTP + 실제 키: `live_check.py --url` 4개 도메인 성공 (KOSIS·실거래 첫 시도는 연결 끊김 → 재실행 성공)
 - [x] 로컬 HTTP + Claude: 평택시 인구 질문 → stat-agent와 같은 답(+12,493명, DT_1YL20651E), Haiku 5.5 $0.0042
 - [x] Host 위조 421, Origin 위조 403, 허용 Host 200
-- [ ] Render 배포 후 실제 URL로 `live_check.py --url`, Claude Code `--transport http`, claude.ai 커넥터
+- [x] Render 배포 (2026-10-30, `https://korea-data-mcp.onrender.com`, 싱가포르): `live_check.py --url` 4개 도메인 첫 시도 성공,
+      `claude_check.py --url` "강남구 지금 미세먼지 어때?" → air-agent와 같은 경로(관측 → 기상 → 조언 도구), Haiku 5.5 $0.0028
+- [ ] Claude Code 앱 `claude mcp add --transport http`, claude.ai 커넥터에 실제 등록 (로컬 PC에서)
 
 ## 구현 순서 (테스트 먼저) — 1~3 완료
 

@@ -12,10 +12,11 @@
   - DART 고유번호는 첫 `dart_resolve_company` 때 약 0.7MB 받아 `~/.cache/korea-data-mcp/`에 저장
 - [x] Claude ↔ MCP 끝까지: "카카오 최근 3년 매출 추이" → 도구 7회, corp-agent와 같은 답·접수번호, Haiku 5.5 $0.0043
 - 키 환경변수: `KOSIS_API_KEY`, `OPENDART_API_KEY`, `DATA_GO_KR_SERVICE_KEY` (+ Claude 확인용 `ANTHROPIC_API_KEY` 또는 `TREND_ANTHROPIC_API_KEY`)
-- [~] 2차: 원격 서버(Streamable HTTP) — ADR 0002 채택: 운영자 키만 · 무인증 공개 · Render 무료
+- [x] 2차: 원격 서버(Streamable HTTP) `https://korea-data-mcp.onrender.com/mcp` — ADR 0002 채택: 운영자 키만 · 무인증 공개 · Render 무료
   - [x] `guard.py`(도메인별 하루 상한 KST·TTL 캐시·IP 분당 60회), `--http`(stateless JSON, Host/Origin 허용 = `RENDER_EXTERNAL_HOSTNAME`), `render.yaml`
   - [x] 로컬 HTTP + 실제 키: live_check 4개 도메인, Claude 평택시 인구 질문 = stat-agent와 같은 답 ($0.0042). 테스트 24개
-  - [ ] 사용자: Render에서 Blueprint로 서비스 생성 + 키 3개 입력 → 주소 알려주면 실제 URL 확인, README 주소·showcase 배지(깨우기 대상) 갱신
+  - [x] Render Blueprint 배포(싱가포르) → 실제 URL로 live_check 4개 도메인·Claude 대화 확인, README 주소·showcase 배지(깨우기 대상) 갱신
+  - [ ] claude.ai 커넥터·Claude Code 앱에 실제 등록 (로컬 PC에서)
 - [x] showcase 카드: 공공데이터 에이전트 목록 맨 위, 배지 "MCP 서버 · 로컬 설치", 작동 예시 팝업 (showcase main 배포됨 2026-10-30)
   - 작동 예시 = 실제 Claude ↔ MCP 대화 기록을 그린 화면: `claude_check.py --save` → `render_demo.py` → Playwright 캡처 (`docs/demo/kakao.*`, Haiku 5.5 $0.0035)
   - 앱(Claude Desktop) 화면 캡처는 로컬 PC에서만 가능 → 원하면 나중에 교체
