@@ -33,5 +33,6 @@
 
 ## 남은 확인
 
-- [ ] 실제 키로 `scripts/live_check.py` (도메인 4개 각각 실제 공공 API 호출)
-- [ ] Claude Desktop/Code에 붙여서 원래 에이전트의 질문을 같은 답으로 처리하는지
+- [x] 실제 키로 `scripts/live_check.py` (도메인 4개 각각 실제 공공 API 호출, 2026-10-30)
+- [x] Claude가 MCP를 거쳐 원래 에이전트 질문을 같은 답으로 처리 (`scripts/claude_check.py`, 카카오 매출 3년: corp-agent와 금액·증감률·접수번호 일치)
+- [ ] Claude Desktop/Code 앱에 실제로 등록해서 사용 (로컬 PC에서)
