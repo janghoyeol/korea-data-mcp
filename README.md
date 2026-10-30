@@ -13,6 +13,13 @@ Claude Desktop·Claude Code 같은 MCP 클라이언트에 꽂으면, 모델이 �
 
 키가 있는 도메인만 켜진다. 모든 도구는 조회 전용(`read_only_hint`)이다.
 
+### 작동 예시
+
+Claude(Haiku 5.5)에 이 서버만 연결하고 "카카오 최근 3년 매출 추이"를 물었을 때의 실제 기록 (2026-10-30, $0.0035).
+도구 16개 중 Claude가 고른 7번의 호출과, 접수번호가 붙은 답. 원본 기록은 [docs/demo/kakao.json](docs/demo/kakao.json).
+
+<img src="docs/demo/kakao.webp" width="560" alt="Claude가 dart_resolve_company → dart_get_financials 4회 → dart_compute_growth 를 호출해 카카오 매출 추이를 접수번호와 함께 답한 기록">
+
 ## 설치
 
 ```bash
@@ -57,6 +64,8 @@ air-agent, realty-agent. 가져온 커밋은 [VENDORED.md](VENDORED.md), 설계 
 pip install -e .
 python -m unittest discover -s tests      # 오프라인 테스트
 python scripts/live_check.py              # 실제 키로 공공 API 호출 (MCP stdio 경유)
+python scripts/claude_check.py "질문" --save docs/demo/x.json   # Claude ↔ MCP 대화 (기록 저장)
+python scripts/render_demo.py docs/demo/x.json x.html            # 기록 → 작동 예시 화면 (Playwright로 캡처)
 ```
 
 ---

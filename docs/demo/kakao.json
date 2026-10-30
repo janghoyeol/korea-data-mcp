@@ -1,0 +1,99 @@
+{
+ "date": "2026-10-30",
+ "question": "카카오 최근 3년 매출 추이",
+ "model": "claude-haiku-5-5",
+ "tools_listed": 16,
+ "tokens": [
+  27392,
+  1575
+ ],
+ "cost_usd": 0.0035,
+ "log": [
+  {
+   "type": "tool",
+   "name": "dart_resolve_company",
+   "input": {
+    "name": "카카오"
+   },
+   "result": "[{\"corp_code\": \"00258801\", \"corp_name\": \"카카오\", \"stock_code\": \"035720\", \"is_listed\": true}, {\"corp_code\": \"00918444\", \"corp_name\": \"카카오\", \"stock_code\": null, \"is_listed\": false}, {\"corp_code\": \"01137383\", \"corp_name\": \"카카오게임즈\", \"stock_code\": \"293490\", \"is_listed\": true}, {\"corp_code\": \"01133217\", \"corp_name\": \"카카오뱅크\", \"stock_code\": \"323410\", \"is_listed\": true}, {\"corp_code\": \"00130949\", \"corp_name\": \"카카오엠\", \"stock_code\": \"016170\", \"is_listed\": true}, {\"corp_code\": \"01244601\", \"corp_name\": \"카카오페이\", \"stock_code\": \"377300\", \"is_listed\": true}, {\"corp_code\": \"01359569\", \"corp_name\": \"아산카카오메디컬데이터\", \"stock_code\": null, \"is_listed\": false}, {\"corp_code\": \"01152160\", \"corp_name\": \"카카오VX\", \"stock_code\": null, \"is_listed\": false}, {\"corp_code\": \"01144329\", \"corp_name\": \"카카오게임즈홀딩스\", \"stock_code\": null, \"is_listed\": false}, {\"corp_code\": \"01143205\", \"corp_name\": \"카카오랩\", \"stock_code\": null, \"is_listed\": false}]",
+   "is_error": false
+  },
+  {
+   "type": "tool",
+   "name": "realty_today",
+   "input": {},
+   "result": "{\"today\": \"2026-10-30\", \"this_month\": \"202610\"}",
+   "is_error": false
+  },
+  {
+   "type": "tool",
+   "name": "dart_get_financials",
+   "input": {
+    "corp_code": "00258801",
+    "bsns_year": "2025"
+   },
+   "result": "{\"corp_code\": \"00258801\", \"bsns_year\": \"2025\", \"reprt_code\": \"11011\", \"reprt_name\": \"사업보고서\", \"fs_div\": \"CFS\", \"fs_div_name\": \"연결재무제표\", \"rcept_no\": \"20260318001423\", \"accounts\": {\"매출액\": {\"account_nm\": \"영업수익\", \"amount\": 8099147815086}, \"영업이익\": {\"account_nm\": \"영업이익\", \"amount\": 732036535379}, \"당기순이익\": {\"account_nm\": \"당기순이익(손실)\", \"amount\": 517959587282}, \"자산총계\": {\"account_nm\": \"자산총계\", \"amount\": 27783524545811}, \"부채총계\": {\"account_nm\": \"부채총계\", \"amount\": 12558602529761}}}",
+   "is_error": false
+  },
+  {
+   "type": "tool",
+   "name": "dart_get_financials",
+   "input": {
+    "corp_code": "00258801",
+    "bsns_year": "2024"
+   },
+   "result": "{\"corp_code\": \"00258801\", \"bsns_year\": \"2024\", \"reprt_code\": \"11011\", \"reprt_name\": \"사업보고서\", \"fs_div\": \"CFS\", \"fs_div_name\": \"연결재무제표\", \"rcept_no\": \"20250324000901\", \"accounts\": {\"매출액\": {\"account_nm\": \"영업수익\", \"amount\": 7871692199887}, \"영업이익\": {\"account_nm\": \"영업이익(손실)\", \"amount\": 460212161525}, \"당기순이익\": {\"account_nm\": \"당기순이익(손실)\", \"amount\": -161870567171}, \"자산총계\": {\"account_nm\": \"자산총계\", \"amount\": 25773028304462}, \"부채총계\": {\"account_nm\": \"부채총계\", \"amount\": 11830134144725}}}",
+   "is_error": false
+  },
+  {
+   "type": "tool",
+   "name": "dart_get_financials",
+   "input": {
+    "corp_code": "00258801",
+    "bsns_year": "2023"
+   },
+   "result": "{\"corp_code\": \"00258801\", \"bsns_year\": \"2023\", \"reprt_code\": \"11011\", \"reprt_name\": \"사업보고서\", \"fs_div\": \"CFS\", \"fs_div_name\": \"연결재무제표\", \"rcept_no\": \"20240418000375\", \"accounts\": {\"매출액\": {\"account_nm\": \"영업수익\", \"amount\": 7557001757272}, \"영업이익\": {\"account_nm\": \"영업이익(손실)\", \"amount\": 460857845673}, \"당기순이익\": {\"account_nm\": \"당기순이익(손실)\", \"amount\": -1816669011014}, \"자산총계\": {\"account_nm\": \"자산총계\", \"amount\": 25179968939321}, \"부채총계\": {\"account_nm\": \"부채총계\", \"amount\": 11321369715195}}}",
+   "is_error": false
+  },
+  {
+   "type": "tool",
+   "name": "dart_get_financials",
+   "input": {
+    "corp_code": "00258801",
+    "bsns_year": "2022"
+   },
+   "result": "{\"corp_code\": \"00258801\", \"bsns_year\": \"2022\", \"reprt_code\": \"11011\", \"reprt_name\": \"사업보고서\", \"fs_div\": \"CFS\", \"fs_div_name\": \"연결재무제표\", \"rcept_no\": \"20240320000393\", \"accounts\": {\"매출액\": {\"account_nm\": \"영업수익\", \"amount\": 6799047881222}, \"영업이익\": {\"account_nm\": \"영업이익(손실)\", \"amount\": 569355650551}, \"당기순이익\": {\"account_nm\": \"당기순이익(손실)\", \"amount\": 1066994242805}, \"자산총계\": {\"account_nm\": \"자산총계\", \"amount\": 22963651561449}, \"부채총계\": {\"account_nm\": \"부채총계\", \"amount\": 9447968971124}}}",
+   "is_error": false
+  },
+  {
+   "type": "tool",
+   "name": "dart_compute_growth",
+   "input": {
+    "values": [
+     {
+      "year": "2022",
+      "amount": 6799047881222
+     },
+     {
+      "year": "2023",
+      "amount": 7557001757272
+     },
+     {
+      "year": "2024",
+      "amount": 7871692199887
+     },
+     {
+      "year": "2025",
+      "amount": 8099147815086
+     }
+    ]
+   },
+   "result": "[{\"year\": \"2022\", \"amount\": 6799047881222, \"yoy_growth_pct\": null}, {\"year\": \"2023\", \"amount\": 7557001757272, \"yoy_growth_pct\": 11.15}, {\"year\": \"2024\", \"amount\": 7871692199887, \"yoy_growth_pct\": 4.16}, {\"year\": \"2025\", \"amount\": 8099147815086, \"yoy_growth_pct\": 2.89}]",
+   "is_error": false
+  },
+  {
+   "type": "text",
+   "text": "카카오(연결재무제표 기준) 최근 3년 매출은 꾸준히 늘었지만 증가 속도는 둔화됐습니다. 2025년 사업보고서가 가장 최신 자료입니다.\n\n| 사업연도 | 매출액(영업수익) | 전년 대비 | 영업이익 | 당기순이익 |\n|---|---|---|---|---|\n| 2023 | 7조 5,570억 원 | +11.15% | 4,609억 원 | -1조 8,167억 원 |\n| 2024 | 7조 8,717억 원 | +4.16% | 4,602억 원 | -1,619억 원 |\n| 2025 | 8조 991억 원 | +2.89% | 7,320억 원 | 5,180억 원 |\n\n- 매출은 2023년 이후 매년 증가해 2025년 8조 원을 넘었습니다. 증가율은 2023년 11.15%에서 2024년 4.16%, 2025년 2.89%로 낮아졌습니다.\n- 2023~2024년 당기순손실은 대규모 손상차손 등 비영업 항목의 영향으로 보이지만, 원인은 공시 본문을 확인해야 정확합니다.\n- 2025년에는 영업이익이 크게 늘고 당기순이익이 흑자로 돌아섰습니다.\n\n출처: DART 카카오(corp_code 00258801) 사업보고서 — 2025년 접수번호 20260318001423, 2024년 20250324000901, 2023년 20240418000375 (모두 연결재무제표). 증감률은 계산 도구로 산출했습니다."
+  }
+ ]
+}

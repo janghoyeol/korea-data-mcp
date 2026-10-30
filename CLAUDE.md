@@ -12,6 +12,8 @@
   - DART 고유번호는 첫 `dart_resolve_company` 때 약 0.7MB 받아 `~/.cache/korea-data-mcp/`에 저장
 - [x] Claude ↔ MCP 끝까지: "카카오 최근 3년 매출 추이" → 도구 7회, corp-agent와 같은 답·접수번호, Haiku 5.5 $0.0043
 - 키 환경변수: `KOSIS_API_KEY`, `OPENDART_API_KEY`, `DATA_GO_KR_SERVICE_KEY` (+ Claude 확인용 `ANTHROPIC_API_KEY` 또는 `TREND_ANTHROPIC_API_KEY`)
-- [ ] 2차: 원격 서버(Streamable HTTP) — 키 한도·남용 방지·호스팅 결정 후
-- [ ] showcase 카드 (모음집 `janghoyeol/showcase`, main 푸시 = 배포. MCP는 웹 화면이 없으니 Claude 대화 화면 캡처를 '작동 예시'로)
+- [ ] 2차: 원격 서버(Streamable HTTP) — 선택지 정리 완료(ADR 0002, 제안). 키 방식·접근 통제·호스팅 3개 합의 후 구현
+- [x] showcase 카드: 공공데이터 에이전트 목록 맨 위, 배지 "MCP 서버 · 로컬 설치", 작동 예시 팝업 (showcase 브랜치 `claude/compassionate-ramanujan-79ae1p`, main 머지 = 배포)
+  - 작동 예시 = 실제 Claude ↔ MCP 대화 기록을 그린 화면: `claude_check.py --save` → `render_demo.py` → Playwright 캡처 (`docs/demo/kakao.*`, Haiku 5.5 $0.0035)
+  - 앱(Claude Desktop) 화면 캡처는 로컬 PC에서만 가능 → 원하면 나중에 교체
 - [ ] 그다음: 프로젝트 A (가상 고객사 사내 데이터 에이전트: NL2SQL + 문서 RAG + 권한 + 승인 흐름 + Docker/CI/관측)
