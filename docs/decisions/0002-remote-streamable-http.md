@@ -1,6 +1,7 @@
 # 0002. 원격 서버(Streamable HTTP) 설계 선택지
 
-- 상태: **제안 — 합의 대기** (2026-10-30). 아래 "합의할 것" 3개가 정해지면 채택으로 바꾸고 구현한다.
+- 상태: **채택** (2026-10-30, 사용자 합의) — 키는 **A(운영자 키 공유)**, 접근은 **a(무인증 공개)**, 호스팅은 **① Render 무료**.
+  아래 선택지 표는 결정 당시 비교 기록으로 남긴다. 결정과 이유는 맨 아래 "결정".
 
 ## 맥락
 
@@ -72,15 +73,31 @@
 **C(내 키 + BYOK 헤더) · a(무인증 공개) · 남용 방지 전부 · stateless JSON · ③ Fly.io**.
 claude.ai 커넥터에 URL만 붙여 바로 써 볼 수 있게 하고, 잃을 수 있는 건 공공 API 일일 한도뿐이라 상한과 캐시로 막는다.
 
-## 합의할 것
+## 결정 (2026-10-30)
 
-1. 키 방식: A / B / **C**
-2. 접근 통제: **a** / b / c
-3. 호스팅: ① / ② / **③** / ④ (유료가 괜찮은지 포함)
+1. **키: A (운영자 키만)**. 사용량이 많지 않을 것으로 보고 BYOK 헤더는 넣지 않는다. 자기 키가 필요한 사람은 로컬 stdio로.
+   대신 같은 키를 원래 에이전트 4개도 쓰므로, 하루 상한을 포털 한도보다 넉넉히 낮게 둔다 (`guard.py`의 `DEFAULT_LIMITS`).
+2. **접근: a (무인증 공개)** + 남용 방지 전부: 도메인별 하루 상한(KST), (도구, 인자) TTL 캐시, IP별 분당 60회, 요청 본문 64KB,
+   `RENDER_EXTERNAL_HOSTNAME`로 Host/Origin 허용 목록.
+   - IP는 `X-Forwarded-For` 첫 값. 위조로 IP 제한은 피할 수 있지만 최종선은 하루 상한이라 받아들인다.
+   - 상한·카운터는 메모리에 있어 재시작(잠듦 포함) 때 초기화된다. 잠들려면 15분 동안 아무도 안 써야 하므로 남용 중엔 초기화되지 않는다.
+3. **호스팅: ① Render 무료**. 다른 에이전트와 같은 방식(`render.yaml` Blueprint).
+   - 알려진 비용: 잠든 서버는 깨는 데 ~1분이라 **첫 연결이 클라이언트 타임아웃으로 실패할 수 있다**. 완화: 루트(`/`)가 상태 확인을 겸해
+     showcase 카드의 깨우기 배지가 서버를 미리 깨운다. README에 "실패하면 1분 뒤 다시"를 적는다.
+   - 계속 깨워 두는 핑은 하지 않는다 (Render 무료 인스턴스 시간은 워크스페이스 전체가 나눠 쓴다).
+4. 세션: stateless + JSON 응답 (위 4번 그대로).
 
-## 구현 순서 (합의 후, 테스트 먼저)
+## 확인 기록
 
-1. 상한·캐시·BYOK 키 선택을 transport와 무관한 층으로 (`run_tool` 앞단) — 오프라인 테스트로 먼저
+- [x] 오프라인 테스트: 캐시·하루 상한·KST 날짜 경계·에러 미캐시·로컬 도구 우회·IP 제한·HTTP 429·uvicorn 위 Streamable HTTP (`tests/test_remote.py`)
+- [x] 로컬 HTTP + 실제 키: `live_check.py --url` 4개 도메인 성공 (KOSIS·실거래 첫 시도는 연결 끊김 → 재실행 성공)
+- [x] 로컬 HTTP + Claude: 평택시 인구 질문 → stat-agent와 같은 답(+12,493명, DT_1YL20651E), Haiku 5.5 $0.0042
+- [x] Host 위조 421, Origin 위조 403, 허용 Host 200
+- [ ] Render 배포 후 실제 URL로 `live_check.py --url`, Claude Code `--transport http`, claude.ai 커넥터
+
+## 구현 순서 (테스트 먼저) — 1~3 완료
+
+1. 상한·캐시를 transport와 무관한 층으로 (`guard.py`) (`run_tool` 앞단) — 오프라인 테스트로 먼저
 2. `korea-data-mcp --http` 진입점: `streamable_http_app(stateless_http=True, json_response=True, transport_security=...)`
 3. 로컬에서 `mcp` Client의 Streamable HTTP로 `scripts/live_check.py`·`claude_check.py` 재실행
 4. 배포 → 실제 URL로 Claude Code `--transport http` 연결 확인 → claude.ai 커넥터 연결 확인

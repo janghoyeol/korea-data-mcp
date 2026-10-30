@@ -5,7 +5,9 @@
 """
 from __future__ import annotations
 
+import argparse
 import json
+import os
 import sys
 from typing import Any
 
@@ -14,7 +16,12 @@ import jsonschema
 import mcp_types as types
 from mcp.server.lowlevel import Server
 from mcp.server.stdio import stdio_server
+from mcp.server.transport_security import TransportSecuritySettings
+from starlette.middleware import Middleware
+from starlette.responses import JSONResponse
+from starlette.routing import Route
 
+from .guard import Guard, RateLimit, parse_limits
 from .registry import Domain, ToolSpec, build_specs, enabled
 
 INSTRUCTIONS = (
@@ -79,7 +86,7 @@ def _error(text: str) -> types.CallToolResult:
     return types.CallToolResult(content=[types.TextContent(type="text", text=text)], is_error=True)
 
 
-def build_server(specs: dict[str, ToolSpec]) -> Server:
+def build_server(specs: dict[str, ToolSpec], guard: Guard | None = None) -> Server:
     async def list_tools(ctx, params) -> types.ListToolsResult:
         return types.ListToolsResult(tools=[
             types.Tool(name=s.name, description=s.description, input_schema=s.input_schema,
@@ -92,7 +99,8 @@ def build_server(specs: dict[str, ToolSpec]) -> Server:
         if spec is None:
             return _error(f"알 수 없는 도구: {params.name}")
         # 공공 API 호출은 동기(requests)라서 이벤트 루프를 막지 않게 스레드에서 실행
-        return await anyio.to_thread.run_sync(run_tool, spec, params.arguments or {})
+        run = guard.run if guard else run_tool
+        return await anyio.to_thread.run_sync(run, spec, params.arguments or {})
 
     return Server(
         "korea-data-mcp",
@@ -104,10 +112,52 @@ def build_server(specs: dict[str, ToolSpec]) -> Server:
     )
 
 
+def build_http_app(specs: dict[str, ToolSpec], guard: Guard, rate_per_min: int, public_host: str | None):
+    """원격 모드 (ADR 0002): stateless + JSON 응답. 도구가 전부 요청 하나로 끝나는 조회라
+    세션 상태가 필요 없고, Render 무료 서버가 잠들었다 깨도 클라이언트 세션이 깨지지 않는다."""
+    async def root(request):
+        # 상태 확인(Render·showcase 깨우기)과 연결 안내를 겸한다
+        mcp_url = str(request.url_for("mcp"))
+        return JSONResponse({
+            "name": "korea-data-mcp", "tools": len(specs), "mcp": mcp_url,
+            "connect": f"claude mcp add --transport http korea-data {mcp_url}",
+            "source": "https://github.com/janghoyeol/korea-data-mcp",
+        })
+
+    security = None
+    if public_host:  # 외부 주소로 열 때는 SDK가 Host 검사를 자동으로 켜 주지 않는다
+        security = TransportSecuritySettings(allowed_hosts=[public_host, "127.0.0.1:*", "localhost:*"],
+                                             allowed_origins=[f"https://{public_host}"])
+    app = build_server(specs, guard).streamable_http_app(
+        stateless_http=True, json_response=True, host="0.0.0.0", transport_security=security,
+        max_request_body_size=64 * 1024, custom_starlette_routes=[Route("/", root)])
+    # streamable_http_app이 붙인 MCP 라우트에 이름을 줘서 url_for로 안내 주소를 만든다
+    for r in app.routes:
+        if getattr(r, "path", None) == "/mcp":
+            r.name = "mcp"
+    app.user_middleware.insert(0, Middleware(RateLimit, per_min=rate_per_min))
+    return app
+
+
 def main() -> None:
+    ap = argparse.ArgumentParser(prog="korea-data-mcp")
+    ap.add_argument("--http", action="store_true", help="원격 모드 (Streamable HTTP). 기본은 stdio")
+    ap.add_argument("--port", type=int, default=int(os.environ.get("PORT", 8000)))
+    a = ap.parse_args()
+
     specs = load_specs(log=lambda m: print(m, file=sys.stderr))
     if not specs:
         print("[korea-data-mcp] 켜진 도메인이 없습니다. README의 환경변수를 설정하세요.", file=sys.stderr)
+
+    if a.http:
+        import uvicorn
+        guard = Guard(parse_limits(os.environ.get("KOREA_DATA_MCP_DAILY_LIMITS")))
+        app = build_http_app(specs, guard, int(os.environ.get("KOREA_DATA_MCP_RATE_PER_MIN", 60)),
+                             os.environ.get("RENDER_EXTERNAL_HOSTNAME"))  # Render가 자동으로 넣어 주는 값
+        print(f"[korea-data-mcp] http :{a.port}/mcp · 하루 상한 {guard.limits}", file=sys.stderr)
+        uvicorn.run(app, host="0.0.0.0", port=a.port, proxy_headers=True, forwarded_allow_ips="*")
+        return
+
     server = build_server(specs)
 
     async def _run():

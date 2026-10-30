@@ -20,6 +20,17 @@ Claude(Haiku 5.5)에 이 서버만 연결하고 "카카오 최근 3년 매출 �
 
 <img src="docs/demo/kakao.webp" width="560" alt="Claude가 dart_resolve_company → dart_get_financials 4회 → dart_compute_growth 를 호출해 카카오 매출 추이를 접수번호와 함께 답한 기록">
 
+## 원격 서버 (설치 없이)
+
+운영자 키로 도는 공개 서버가 있다. Render 무료 서버라 한동안 안 쓰면 잠들고, **첫 연결이 실패하면 1분 뒤 다시** 시도하면 된다.
+도메인별 하루 공용 상한이 있어서, 많이 쓰려면 아래처럼 자기 키로 로컬 설치를 권한다.
+
+```bash
+claude mcp add --transport http korea-data https://<배포 주소>/mcp
+```
+
+claude.ai에서는 설정 → 커넥터 → 사용자 지정 커넥터 추가에 같은 `/mcp` 주소를 넣는다.
+
 ## 설치
 
 ```bash
@@ -64,6 +75,8 @@ air-agent, realty-agent. 가져온 커밋은 [VENDORED.md](VENDORED.md), 설계 
 pip install -e .
 python -m unittest discover -s tests      # 오프라인 테스트
 python scripts/live_check.py              # 실제 키로 공공 API 호출 (MCP stdio 경유)
+korea-data-mcp --http --port 8000         # 원격 모드 (Streamable HTTP, stateless) — 배포는 render.yaml
+python scripts/live_check.py --url http://127.0.0.1:8000/mcp     # HTTP 경유 확인
 python scripts/claude_check.py "질문" --save docs/demo/x.json   # Claude ↔ MCP 대화 (기록 저장)
 python scripts/render_demo.py docs/demo/x.json x.html            # 기록 → 작동 예시 화면 (Playwright로 캡처)
 ```

@@ -1,8 +1,10 @@
 """실제 키로 각 도메인의 공공 API를 MCP(stdio)를 거쳐 한 번씩 호출해 본다.
 
 사용법: KOSIS_API_KEY=... OPENDART_API_KEY=... DATA_GO_KR_SERVICE_KEY=... python scripts/live_check.py
+      원격 서버 확인: python scripts/live_check.py --url https://.../mcp  (키는 서버 쪽에 있음)
 질문은 모음집의 '작동 예시'와 같은 것을 쓴다 (원래 에이전트에서 실제로 성공한 경로).
 """
+import argparse
 import json
 import os
 import sys
@@ -40,11 +42,11 @@ def fill(args, results):
     return out
 
 
-async def main():
-    params = StdioServerParameters(command=sys.executable, args=["-m", "korea_data_mcp.server"],
-                                   env=dict(os.environ))
+async def main(url: str | None):
+    target = url or StdioServerParameters(command=sys.executable, args=["-m", "korea_data_mcp.server"],
+                                          env=dict(os.environ))
     ok = True
-    async with Client(params) as c:
+    async with Client(target) as c:
         names = {t.name for t in (await c.list_tools()).tools}
         for domain, steps in CHECKS:
             if not any(n.startswith(domain + "_") for n in names):
@@ -64,4 +66,6 @@ async def main():
 
 
 if __name__ == "__main__":
-    sys.exit(0 if anyio.run(main) else 1)
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--url", help="원격 서버의 /mcp 주소 (없으면 로컬 stdio)")
+    sys.exit(0 if anyio.run(main, ap.parse_args().url) else 1)

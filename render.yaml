@@ -1,0 +1,23 @@
+# Render Blueprint: 원격 MCP 서버 (ADR 0002). Render 대시보드 → New → Blueprint → 이 레포.
+# 공공 API 키 3개는 처음 만들 때 대시보드에서 입력한다 (sync: false = 레포에 값을 두지 않음).
+services:
+  - type: web
+    name: korea-data-mcp
+    runtime: python
+    plan: free
+    branch: main
+    buildCommand: pip install .
+    startCommand: korea-data-mcp --http
+    healthCheckPath: /
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.7"
+      - key: KOSIS_API_KEY
+        sync: false
+      - key: OPENDART_API_KEY
+        sync: false
+      - key: DATA_GO_KR_SERVICE_KEY
+        sync: false
+      # 선택: 하루 상한 덮어쓰기 (기본 kosis=1000,dart=1000,air=300,realty=500), IP별 분당 요청 수 (기본 60)
+      # - key: KOREA_DATA_MCP_DAILY_LIMITS
+      #   value: "dart=1000,air=300"

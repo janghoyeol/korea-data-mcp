@@ -1,6 +1,6 @@
 """Claude가 이 MCP 서버의 도구를 받아 실제로 골라 쓰는지 확인한다 (MCP stdio 경유).
 
-사용법: python scripts/claude_check.py "질문" [--model claude-haiku-5-5] [--save 대화.json]
+사용법: python scripts/claude_check.py "질문" [--model claude-haiku-5-5] [--save 대화.json] [--url https://.../mcp]
 키: ANTHROPIC_API_KEY (또는 TREND_ANTHROPIC_API_KEY) + 쓰려는 도메인의 공공 API 키
 """
 import argparse
@@ -16,12 +16,12 @@ from mcp import Client, StdioServerParameters
 PRICES = {"claude-haiku-5-5": (0.10, 0.50), "claude-sonnet-5-5": (2.0, 10.0)}  # $/1M (input, output)
 
 
-async def main(question: str, model: str, save: str | None) -> None:
+async def main(question: str, model: str, save: str | None, url: str | None) -> None:
     key = os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("TREND_ANTHROPIC_API_KEY")
     claude = anthropic.Anthropic(api_key=key)
-    params = StdioServerParameters(command=sys.executable, args=["-m", "korea_data_mcp.server"],
-                                   env=dict(os.environ))
-    async with Client(params) as mcp:
+    target = url or StdioServerParameters(command=sys.executable, args=["-m", "korea_data_mcp.server"],
+                                          env=dict(os.environ))
+    async with Client(target) as mcp:
         listed = (await mcp.list_tools()).tools
         tools = [{"name": t.name, "description": t.description, "input_schema": t.input_schema} for t in listed]
         messages = [{"role": "user", "content": question}]
@@ -53,7 +53,7 @@ async def main(question: str, model: str, save: str | None) -> None:
         if save:
             with open(save, "w", encoding="utf-8") as f:
                 json.dump({"date": datetime.date.today().isoformat(), "question": question, "model": model,
-                           "tools_listed": len(tools), "tokens": [tokens_in, tokens_out], "cost_usd": round(cost, 4), "log": log},
+                           "transport": "http" if url else "stdio", "tools_listed": len(tools), "tokens": [tokens_in, tokens_out], "cost_usd": round(cost, 4), "log": log},
                           f, ensure_ascii=False, indent=1)
 
 
@@ -62,5 +62,6 @@ if __name__ == "__main__":
     ap.add_argument("question")
     ap.add_argument("--model", default="claude-haiku-5-5")
     ap.add_argument("--save", help="대화 기록을 JSON으로 저장 (showcase 작동 예시용)")
+    ap.add_argument("--url", help="원격 서버의 /mcp 주소 (없으면 로컬 stdio)")
     a = ap.parse_args()
-    anyio.run(main, a.question, a.model, a.save)
+    anyio.run(main, a.question, a.model, a.save, a.url)
